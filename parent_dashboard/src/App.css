@@ -1,0 +1,68 @@
+.App {
+    text-align: center;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+}
+
+.login {
+    max-width: 300px;
+    margin: 0 auto;
+}
+
+.login input {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.commands, .storage, .live-stream {
+    margin: 20px 0;
+}
+
+.commands button {
+    padding: 10px 20px;
+    margin: 5px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.commands button:hover {
+    background-color: #0056b3;
+}
+
+.storage table {
+    width: 80%;
+    margin: 0 auto;
+    border-collapse: collapse;
+}
+
+.storage th, .storage td {
+    padding: 10px;
+    border: 1px solid #ccc;
+}
+
+.storage a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.storage a:hover {
+    text-decoration: underline;
+}
+
+.live-stream {
+    border: 1px solid #ccc;
+    padding: 20px;
+    border-radius: 4px;
+}
+
+video {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}

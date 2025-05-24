@@ -1,4 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Child Monitoring</string>
-    <string name="notification_channel_id">monitoring_channel</string>
+    <string name="app_name">MyChildMonitor</string>
+    <string name="accessibility_service_description">Accessibility service for keylogging and monitoring.</string>
 </resources>

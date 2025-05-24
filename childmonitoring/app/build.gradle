@@ -16,12 +16,17 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 }
 
 dependencies {
     implementation 'androidx.core:core:1.12.0'
     implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.22' // Use JDK8 version
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.22'
+
     // Exclude conflicting Kotlin modules
     implementation('androidx.core:core:1.12.0') {
         exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib'
@@ -31,4 +36,17 @@ dependencies {
         exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib'
         exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-jdk7'
     }
+
+    // WebRTC for audio/video streaming
+    implementation files('libs/webrtc.aar')
+
+    // OkHttp for WebSocket communication
+    implementation 'com.squareup.okhttp3:okhttp:4.12.0'
+
+    // Room for local database caching
+    implementation 'androidx.room:room-runtime:2.6.1'
+    annotationProcessor 'androidx.room:room-compiler:2.6.1'
+
+    // JSON for WebSocket message serialization
+    implementation 'org.json:json:20231013'
 }
