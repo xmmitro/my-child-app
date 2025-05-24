@@ -1,50 +1,67 @@
-# parent_cli.py
-import argparse
-import socket
 import ssl
-import json
+import socket
+import argparse
 import sqlite3
+import sys
 
-HOST = "localhost"
-PORT = 8080
-DB_PATH = "monitoring_data.db"
+HOST = '192.168.0.102'  # Windows host Wi-Fi IP
+PORT = 7100
 
-def send_command(command, client_id="child_device_001"):
+def send_command(command):
     context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
-    context.load_verify_locations("server.crt")
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s = context.wrap_socket(s, server_hostname=HOST)
-        s.connect((HOST, PORT))
-        s.send(json.dumps({"client_id": client_id, "command": command}).encode())
-        response = s.recv(1024).decode()
-        print(f"Response: {response}")
+    context.load_verify_locations('server.crt')
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            with context.wrap_socket(s, server_hostname=HOST) as secure_socket:
+                print(f"Attempting to connect to {HOST}:{PORT}")
+                secure_socket.settimeout(5)
+                secure_socket.connect((HOST, PORT))
+                secure_socket.sendall(command.encode())
+                response = secure_socket.recv(1024).decode()
+                print(f"Response: {response}")
+    except ConnectionRefusedError:
+        print(f"Error: Connection refused to {HOST}:{PORT}. Is the server running?")
+        sys.exit(1)
+    except ssl.SSLError as e:
+        print(f"SSL Error: {e}")
+        sys.exit(1)
+    except socket.timeout:
+        print(f"Error: Connection timed out to {HOST}:{PORT}")
+        sys.exit(1)
+    except Exception as e:
+        print(f"Error: {e}")
+        sys.exit(1)
 
-def view_data(client_id, data_type=None):
-    conn = sqlite3.connect(DB_PATH)
-    c = conn.cursor()
-    query = "SELECT type, data, timestamp FROM monitoring_data WHERE client_id = ?"
-    params = [client_id]
-    if data_type:
-        query += " AND type = ?"
-        params.append(data_type)
-    c.execute(query, params)
-    for row in c.fetchall():
-        print(f"Type: {row[0]}, Data: {row[1]}, Timestamp: {row[2]}")
-    conn.close()
+def view_data(device_id, data_type):
+    try:
+        with sqlite3.connect('monitoring_data.db') as db:
+            cursor = db.execute(
+                "SELECT data, timestamp FROM logs WHERE device_id = ? AND data_type = ? ORDER BY timestamp DESC",
+                (device_id, data_type)
+            )
+            rows = cursor.fetchall()
+            if rows:
+                for row in rows:
+                    print(f"[{row[1]}] {row[0]}")
+            else:
+                print(f"No {data_type} data found for device {device_id}")
+    except sqlite3.Error as e:
+        print(f"Database error: {e}")
+        sys.exit(1)
 
 def main():
-    parser = argparse.ArgumentParser(description="Parental Monitoring CLI")
-    parser.add_argument("--command", help="Command to send (e.g., start_audio, stop_audio, start_camera, stop_camera)")
-    parser.add_argument("--view-data", help="View data for client ID")
-    parser.add_argument("--data-type", help="Filter data by type (e.g., location, keylog)")
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--command', help='Command to send')
+    parser.add_argument('--view-data', help='View data for device')
+    parser.add_argument('--data-type', help='Data type to view')
     args = parser.parse_args()
-
     if args.command:
         send_command(args.command)
-    elif args.view_data:
+    elif args.view_data and args.data_type:
         view_data(args.view_data, args.data_type)
     else:
-        print("Use --command or --view-data")
+        print("Please provide --command or --view-data and --data-type")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
